@@ -19,6 +19,7 @@ export default {
     background: #fff;
     border: 1px solid #ccc;
     border-radius: $border-radius;
+    cursor: pointer;
     &:hover{
         color: $theme-color;
         border-color: $theme-color;

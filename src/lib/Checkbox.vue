@@ -19,18 +19,29 @@ export default {
     emits: ['update:modelValue'],
     setup(props, ctx) {
         let {isCheckboxGroup, listValue, updateModelVaule} = inject('checkList')
-        console.log(isCheckboxGroup, listValue)
+        const model = computed({
+            get() {
+                return listValue.value
+            }
+        })
+        const val = props.value
         function click() {
+            let list = [...model.value]
             if(isCheckboxGroup) {
-                updateModelVaule(props.value)
+                if(list.includes(val)) {
+                   list.splice(list.indexOf(val), 1)
+               } else {
+                   list.push(val)
+               }
+                updateModelVaule(list.sort())
             } else {
                 ctx.emit('update:modelValue', !props.modelValue)
             }
         }
         const active = computed(()=> { 
             let currentModelValue = props.modelValue
-            if(isCheckboxGroup) {
-                return listValue.includes(props.value) ? 'active' : ''
+            if(isCheckboxGroup && Array.isArray(listValue.value)) {
+                return listValue.value.includes(props.value) ? 'active' : ''
             }
             return currentModelValue ? 'active' : ''
         })

@@ -4,7 +4,7 @@
     </div>
 </template>
 <script>
-import {reactive, provide, watchEffect} from 'vue'
+import {reactive, provide, watch, computed, nextTick} from 'vue'
 export default {
     props: {
         modelValue: {
@@ -13,25 +13,32 @@ export default {
         },
         value: [String, Number]
     },
-    emits: ['update:modelValue'],
-    setup(props, ctx) {
-        let list = reactive(props.modelValue)
+    emits: ['update:modelValue','change', 'changeList'],
+    setup(props, {emit}) {
+         const changeEvent = (value) => {
+            emit('update:modelValue', value)
+            nextTick(() => {
+                emit('change', value)
+            })
+        }
+
+        let modelValue = computed({
+            get() {
+                return props.modelValue
+            },
+            set(val) {
+                changeEvent(val)
+            }
+        })
         provide('checkList', {
-           listValue: props.modelValue,
+           listValue: modelValue,
            isCheckboxGroup: true,
-           updateModelVaule(val) {
-               if(list.includes(val)) {
-                   // eslint-disable-next-line vue/no-mutating-props
-                   list.splice(list.indexOf(val), 1)
-               } else {
-                   // eslint-disable-next-line vue/no-mutating-props
-                   list.push(val)
-               }
-               console.log(val, list)
-            //    ctx.emit('update:modelValue', props.modelValue)
-           }
+           updateModelVaule: changeEvent
         })
         
+        watch(
+            () => props.modelValue
+        )
     },
 }
 </script>
